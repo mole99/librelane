@@ -445,8 +445,8 @@ class DRC(KLayoutStep):
         input_view = state_in[DesignFormat.GDS]
         assert isinstance(input_view, Path)
 
-        density = (
-            "true" if self.config["KLAYOUT_DRC_OPTIONS"].get("density") else "false"
+        density_rules = (
+            "true" if self.config["KLAYOUT_DRC_OPTIONS"].get("densityRules") else "false"
         )
         threads = self.config["KLAYOUT_DRC_THREADS"] or (str(os.cpu_count()) or "1")
         info(f"Running KLayout DRC with {threads} threads…")
@@ -464,7 +464,7 @@ class DRC(KLayoutStep):
                 "-rd",
                 f"report_file={abspath(xml_report)}",
                 "-rd",
-                f"density={density}",
+                f"densityRules={density_rules}",
                 "-rd",
                 f"threads={threads}",
             ]
