@@ -88,6 +88,23 @@ class Lint(Step):
             Optional[List[str]],
             "Linter-specific preprocessor definitions; overrides VERILOG_DEFINES for the lint step if exists",
         ),
+        Variable(
+            "LINTER_DISABLE_WARNINGS",
+            Optional[List[str]],
+            "Warning codes that are passed to the linter to be disabled.",
+            default=["DECLFILENAME", "EOFNEWLINE"],
+        ),
+        Variable(
+            "LINTER_DISABLE_WARNINGS_BLACKBOX",
+            Optional[List[str]],
+            "Warning codes that are passed to the linter to be disabled for all blackbox modules.",
+            default=["UNDRIVEN", "UNUSEDSIGNAL"],
+        ),
+        Variable(
+            "LINTER_VLT",
+            Optional[Path],
+            "Path to a Verilator Configuration format file (`.vlt`) that is passed to the linter.",
+        ),
     ]
 
     def run(self, state_in: State, **kwargs) -> Tuple[ViewsUpdate, MetricsUpdate]:
@@ -161,11 +178,16 @@ class Lint(Step):
         vlt_file = os.path.join(self.step_dir, "_deps.vlt")
         with open(vlt_file, "w") as f:
             f.write("`verilator_config\n")
-            f.write("lint_off -rule DECLFILENAME\n")
-            f.write("lint_off -rule EOFNEWLINE\n")
+            if disable_warnings := self.config["LINTER_DISABLE_WARNINGS"]:
+                for warn in disable_warnings:
+                    f.write(f"lint_off -rule {warn}\n")
+
             for blackbox in blackboxes:
-                f.write(f'lint_off -rule UNDRIVEN -file "{blackbox}"\n')
-                f.write(f'lint_off -rule UNUSEDSIGNAL -file "{blackbox}"\n')
+                if disable_warnings_bb := self.config[
+                    "LINTER_DISABLE_WARNINGS_BLACKBOX"
+                ]:
+                    for warn in disable_warnings_bb:
+                        f.write(f'lint_off -rule {warn} -file "{blackbox}"\n')
 
         extra_args.append("--Wno-fatal")
 
@@ -181,20 +203,21 @@ class Lint(Step):
         for define in defines:
             extra_args.append(f"+define+{define}")
 
+        if linter_vlt := self.config["LINTER_VLT"]:
+            extra_args.append(linter_vlt)
+
         result = self.run_subprocess(
             [
                 "verilator",
                 "--lint-only",
                 "--Wall",
-                "--Wno-DECLFILENAME",
-                "--Wno-EOFNEWLINE",
                 "--top-module",
                 self.config["DESIGN_NAME"],
                 vlt_file,
             ]
+            + extra_args
             + blackboxes
-            + self.config["VERILOG_FILES"]
-            + extra_args,
+            + self.config["VERILOG_FILES"],
             env=env,
             check=False,
         )
