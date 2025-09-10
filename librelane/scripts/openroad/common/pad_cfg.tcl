@@ -86,69 +86,85 @@ make_io_sites \
 
 # Add SOUTH IO Pads
 set i 0
-foreach cellname_instancename $::env(PAD_IO_SOUTH) {
-    set cellname [lindex $cellname_instancename 0]
-    set instancename [lindex $cellname_instancename 1]
+foreach instance_name $::env(PAD_SOUTH) {
     
-    if {$cellname == "None" || $instancename == "None"} {
+    if {$instance_name == "None"} {
         incr i
         continue
     }
     
-    puts "\[INFO\] Adding instance $instancename of cell $cellname to IO_SOUTH"
+    if { [set instance [$::block findInst $instance_name]] == "NULL" } {
+        puts stderr "\[ERROR\] No instance $instance_name found."
+        continue
+    }
     
-    place_pad -row IO_SOUTH -location [calc_horizontal_pad_location $i [llength $::env(PAD_IO_SOUTH)] $cellname] $instancename -master $cellname
+    set master_name [[$instance getMaster] getName]
+    puts "\[INFO\] Adding instance $instance_name of cell $master_name to SOUTH pads."
+    
+    place_pad -row IO_SOUTH -location [calc_horizontal_pad_location $i [llength $::env(PAD_SOUTH)] $master_name] $instance_name -master $master_name
     incr i
 }
 
 # Add EAST IO Pads
 set i 0
-foreach cellname_instancename $::env(PAD_IO_EAST) {
-    set cellname [lindex $cellname_instancename 0]
-    set instancename [lindex $cellname_instancename 1]
-    
-    if {$cellname == "None" || $instancename == "None"} {
+foreach instance_name $::env(PAD_EAST) {
+
+    if {$instance_name == "None"} {
         incr i
         continue
     }
     
-    puts "\[INFO\] Adding instance $instancename of cell $cellname to IO_EAST"
+    if { [set instance [$::block findInst $instance_name]] == "NULL" } {
+        puts stderr "\[ERROR\] No instance $instance_name found."
+        continue
+    }
     
-    place_pad -row IO_EAST -location [calc_vertical_pad_location $i [llength $::env(PAD_IO_EAST)] $cellname] $instancename -master $cellname
+    set master_name [[$instance getMaster] getName]
+    puts "\[INFO\] Adding instance $instance_name of cell $master_name to EAST pads."
+    
+    place_pad -row IO_EAST -location [calc_vertical_pad_location $i [llength $::env(PAD_EAST)] $master_name] $instance_name -master $master_name
     incr i
 }
 
 # Add NORTH IO Pads
 set i 0
-foreach cellname_instancename $::env(PAD_IO_NORTH) {
-    set cellname [lindex $cellname_instancename 0]
-    set instancename [lindex $cellname_instancename 1]
-    
-    if {$cellname == "None" || $instancename == "None"} {
+foreach instance_name $::env(PAD_NORTH) {
+
+    if {$instance_name == "None"} {
         incr i
         continue
     }
     
-    puts "\[INFO\] Adding instance $instancename of cell $cellname to IO_NORTH"
+    if { [set instance [$::block findInst $instance_name]] == "NULL" } {
+        puts stderr "\[ERROR\] No instance $instance_name found."
+        continue
+    }
     
-    place_pad -row IO_NORTH -location [calc_horizontal_pad_location $i [llength $::env(PAD_IO_NORTH)] $cellname] $instancename -master $cellname
+    set master_name [[$instance getMaster] getName]
+    puts "\[INFO\] Adding instance $instance_name of cell $master_name to NORTH pads."
+    
+    place_pad -row IO_NORTH -location [calc_horizontal_pad_location $i [llength $::env(PAD_NORTH)] $master_name] $instance_name -master $master_name
     incr i
 }
 
 # Add WEST IO Pads
 set i 0
-foreach cellname_instancename $::env(PAD_IO_WEST) {
-    set cellname [lindex $cellname_instancename 0]
-    set instancename [lindex $cellname_instancename 1]
-    
-    if {$cellname == "None" || $instancename == "None"} {
+foreach instance_name $::env(PAD_WEST) {
+
+    if {$instance_name == "None"} {
         incr i
         continue
-    }    
+    }
     
-    puts "\[INFO\] Adding instance $instancename of cell $cellname to IO_WEST"
+    if { [set instance [$::block findInst $instance_name]] == "NULL" } {
+        puts stderr "\[ERROR\] No instance $instance_name found."
+        continue
+    }
     
-    place_pad -row IO_WEST -location [calc_vertical_pad_location $i [llength $::env(PAD_IO_WEST)] $cellname] $instancename -master $cellname
+    set master_name [[$instance getMaster] getName]
+    puts "\[INFO\] Adding instance $instance_name of cell $master_name to WEST pads."
+    
+    place_pad -row IO_WEST -location [calc_vertical_pad_location $i [llength $::env(PAD_WEST)] $master_name] $instance_name -master $master_name
     incr i
 }
 
